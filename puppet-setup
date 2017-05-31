@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# Author: clark@castironcoding.com
+# Purpose: Quick script to the puppet show
+# Supported OS: Ubuntu 14.04 LTS; Ubuntu 16.04 LTS 
+
+setup_ubuntu_14() {
+	wget https://apt.puppetlabs.com/puppetlabs-release-trusty.deb
+	dpkg -i puppetlabs-release-trusty.deb
+
+	apt-get update
+	apt-get install puppet
+
+	cat >/etc/puppet/puppet.conf <<-PUPPETCONF
+	[agent]
+	pluginsync=true
+	report=true
+	ignoreschedules=true
+	daemon=false
+	ca_server=honcho.cichq.com
+	certname=${HOSTNAME}
+	environment=production
+	server=honcho.cichq.com
+	rundir=/var/run/puppet
+	PUPPETCONF
+
+	puppet agent --test
+}
+
+setup_ubuntu_16() {
+	apt-get update
+	apt-get install -y puppet
+
+	cat >/etc/puppet/puppet.conf <<-PUPPETCONF
+	[main]
+	vardir = /var/lib/puppet
+	logdir = /var/log/puppet
+	rundir = /var/run/puppet
+	ssldir = $vardir/ssl
+
+	[agent]
+	pluginsync = true
+	report = true
+	ignoreschedules = true
+	ca_server = pancho.cichq.com
+	certname = ${HOSTNAME}
+	environment = production
+	server = pancho-puppet.cichq.com
+	PUPPETCONF
+
+	puppet agent --test
+}
+
+setup_puppet() {
+	if [ ! -r "/etc/lsb-release" ]; then
+		echo "Cannot read version" >&2
+		exit 1
+	fi
+
+	. /etc/lsb-release
+
+	case "$DISTRIB_RELEASE" in
+		"14.04")
+			setup_ubuntu_14
+			;;
+		"16.04")
+			setup_ubuntu_16
+			;;
+		*)
+			echo "Unknown version: ${DISTRIB_RELEASE}" >&2
+			exit 1
+			;;
+	esac
+}
+
+setup_puppet
