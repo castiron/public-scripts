@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Author: clark@castironcoding.com
 # Purpose: Quick script to the puppet show
-# Supported OS: Ubuntu 14.04 LTS; Ubuntu 16.04 LTS 
+# Supported OS: Ubuntu 14.04 LTS; Ubuntu 16.04 LTS
 
 setup_ubuntu_14() {
 	wget https://apt.puppetlabs.com/puppetlabs-release-trusty.deb
