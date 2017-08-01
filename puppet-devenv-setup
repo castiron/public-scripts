@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Author: clark@castironcoding.com
+# Purpose: Quick script to setup puppet development environment
+mkdir ~/src/pancho-puppet && cd ~/src/pancho-puppet && git clone git@github.com:castiron/pancho-puppet.git code && git clone git@github.com:castiron/pancho-puppet-ctrl.git ctrl
