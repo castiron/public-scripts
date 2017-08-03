@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# Author: clark@castironcoding.com
+# Purpose: Automate the installation of rbenv
+#
+# Params:
+# required ${1} - name of user who rbenv should be installed under
+# optional ${2} - alternative home path, defaults to: /home
+#
 
 if [ $# -eq 0 ]
 then
@@ -15,16 +22,23 @@ then
     exit 1
 fi
 
+home_path="/home"
+if [ ! -z "${2}" ]
+then
+    home_path=${2}
+fi
+
 apt-get -y install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev
 
 
 su - ${1} << EOF
-    git clone https://github.com/rbenv/rbenv.git /home/${1}/.rbenv
-    cd /home/${1}/.rbenv && src/configure && make -C src
-    echo "export PATH=/home/${1}/.rbenv/bin:$PATH" >> /home/${1}/.bash_profile
-    echo 'eval "\$(rbenv init -)"' >> /home/${1}/.bash_profile
-    git clone https://github.com/rbenv/ruby-build.git /home/${1}/.rbenv/plugins/ruby-build
-    /home/${1}/.rbenv/bin/rbenv init
+    git clone https://github.com/rbenv/rbenv.git ${home_path}/${1}/.rbenv
+    cd ${home_path}/${1}/.rbenv && src/configure && make -C src
+    cd ${home_path}/${1}/.rbenv && src/configure && make -C src
+    echo "export PATH=${home_path}/${1}/.rbenv/bin:$PATH" >> /${home_path}/${1}/.bash_profile
+    echo 'eval "\$(rbenv init -)"' >> ${home_path}/${1}/.bash_profile
+    git clone https://github.com/rbenv/ruby-build.git ${home_path}/${1}/.rbenv/plugins/ruby-build
+    ${home_path}/${1}/.rbenv/bin/rbenv init
 EOF
 
 cat << EOF
