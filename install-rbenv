@@ -54,7 +54,7 @@ rbenv rehash
 
 Also, don't forget:
 
-if \`su ${1}\` is your next course of action then `source ~/.bash_profile `
+if \`su ${1}\` is your next course of action then \`source ~/.bash_profile \`
 
 GOOOOOOOOOOOOOOOOOOD
 
