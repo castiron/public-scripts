@@ -27,6 +27,8 @@ setup_ubuntu_14() {
 }
 
 setup_ubuntu_16() {
+	wget https://apt.puppetlabs.com/puppet-release-xenial.deb
+	dpkg -i puppet-release-xenial.deb
 	apt-get update
 	apt-get install -y puppet
 
