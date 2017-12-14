@@ -8,7 +8,7 @@ setup_ubuntu_14() {
 	dpkg -i puppetlabs-release-trusty.deb
 
 	apt-get update
-	apt-get install puppet
+	apt-get install -y puppet
 
 	cat >/etc/puppet/puppet.conf <<-PUPPETCONF
 	[agent]
