@@ -12,15 +12,15 @@ setup_ubuntu_14() {
 
 	cat >/etc/puppet/puppet.conf <<-PUPPETCONF
 	[agent]
-	pluginsync=true
-	report=true
-	ignoreschedules=true
-	daemon=false
-	ca_server=honcho.cichq.com
-	certname=${HOSTNAME}
-	environment=production
-	server=honcho.cichq.com
-	rundir=/var/run/puppet
+	pluginsync = true
+	report = true
+	ignoreschedules = true
+	daemon = false
+	ca_server = pancho.cichq.com
+	certname = ${HOSTNAME}
+	environment = production
+	server = pancho-puppet.cichq.com
+	rundir = /var/run/puppet
 	PUPPETCONF
 
 	puppet agent --test
