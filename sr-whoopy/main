@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Author: clark@castironcoding.com
+# Purpose: Wrapper script around domain updater for Wordpress sites
+
+henchman_version="v2.0.2" # Add version ex. v2.0.2
+henchman_location="/tmp" # Add location to store henchman ex. /tmp
+henchman_debug=false
+main() {
+    local working_dir
+    local srdb_script
+
+    local params db_host db_name db_user search replace db_password
+    db_password=''
+    params=(db_host db_name db_user search replace db_password)
+
+    hm get_working_directory && working_dir=${hm_return}
+
+    srdb_script="${working_dir}/lib/srdb/srdb.cli.php"
+
+    if [ ${main_params_count} -ne 5 ]
+    then
+        echo -e 'Usage: \n'
+        echo -e './sr-whoopy [db_host] [db_name] [db_user] [search] [replace] [OPTIONAL: db_password]  \n'
+        exit 1
+    fi
+
+    for i in "${!main_params[@]}"; do
+       export ${params[$i]}=${main_params[$i]}
+    done
+
+
+    echo -e "php ${srdb_script} -h ${db_host} -u ${db_user} -n ${db_name} -s ${search} -r ${replace} -p ####\n"
+    cat << EXECUTE_MSG
+
+*********************************************
+* Dear person,
+*
+* The above command is about to be executed.
+* Do you wish to proceed?
+*
+* 'y' - To continue
+* Press any other key to abort
+*********************************************
+EXECUTE_MSG
+
+    read -s -n 1 deploy_response
+    if [[ "${deploy_response}" == "y" || "${deploy_response}" == "Y" ]]
+    then
+        php ${srdb_script} -h ${db_host} -u ${db_user} -n ${db_name} -s ${search} -r ${replace} -p ${db_password}
+    else
+        echo "You have chosen to end the experience. Goodbye."
+        exit 1
+    fi
+
+    echo -e "All done. \n"
+    exit 0
+
+
+}
+henchman_load() { local hm_url="https://raw.githubusercontent.com/castiron/henchman/${henchman_version}/henchman";local hm_local_file="${henchman_location}/henchman-${henchman_version}";echo -e "Attempting to fetch Henchman ${henchman_version}\n";if [ -e ${hm_local_file} ];then echo -e "Henchman ${henchman_version} is ready for action.";else if hash curl 2>/dev/null;then curl ${hm_url} -o ${hm_local_file};elif hash wget 2>/dev/null;then wget ${hm_url} -O ${hm_local_file};else echo "Error! curl or wget required to fetch Henchman.";fi;fi;source ${hm_local_file}; }
+henchman_load $@
