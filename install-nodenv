@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Author: clark@castironcoding.com
+# Purpose: Automate the installation of nodenv
+#
+# Params:
+# required ${1} - name of user who nodenv should be installed under
+# optional ${2} - alternative home path, defaults to: /home
+#
+
+if [ $# -eq 0 ]
+then
+    echo "Error. Must provide username where nodenv should be installed."
+    echo "Ex. ./install-nodenv typo3"
+    exit 1
+fi
+
+executing_user=$(whoami)
+
+if [[ "${executing_user}" != "root" ]]
+then
+    echo "Error. Must run as root user."
+    exit 1
+fi
+
+home_path="/home"
+if [ ! -z "${2}" ]
+then
+    home_path=${2}
+fi
+
+apt-get -y install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev
+
+
+su - ${1} << EOF
+    git clone https://github.com/nodenv/nodenv.git ${home_path}/${1}/.nodenv
+    cd ${home_path}/${1}/.nodenv && src/configure && make -C src
+    echo "export PATH=${home_path}/${1}/.nodenv/bin:$PATH" >> /${home_path}/${1}/.bash_profile
+    git clone https://github.com/nodenv/node-build.git $(nodenv root)/plugins/node-build
+EOF
+
+cat << EOF
+Ok, ok, ok it is done
+
+nodenv is setup for: ${1}
+
+Perhaps now you try a little:
+
+nodenv install x.x.x
+nodenv global x.x.x
+nodenv rehash
+
+
+GOOOOOOOOOOOOOOOOOOD
+
+EOF
+
+exit 0
