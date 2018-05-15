@@ -1,7 +1,7 @@
 # public-scripts
 Repository for public setup scripts
 
-### Setup puppet on Ubuntu 14 or 16:
+### Setup puppet on Ubuntu 14, 16, or 18:
 As root:
 
 ```sh
