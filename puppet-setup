@@ -52,6 +52,32 @@ setup_ubuntu_16() {
 	puppet agent --test
 }
 
+setup_ubuntu_18() {
+	wget https://apt.puppetlabs.com/puppet-release-bionic.deb
+	dpkg -i puppet-release-bionic.deb
+	apt-get update
+	apt-get install -y puppet
+
+	cat >/etc/puppet/puppet.conf <<-PUPPETCONF
+	[main]
+	vardir = /var/lib/puppet
+	logdir = /var/log/puppet
+	rundir = /var/run/puppet
+	ssldir = $vardir/ssl
+
+	[agent]
+	pluginsync = true
+	report = true
+	ignoreschedules = true
+	ca_server = pancho.cichq.com
+	certname = ${HOSTNAME}
+	environment = production
+	server = pancho-puppet.cichq.com
+	PUPPETCONF
+
+	puppet agent --test
+}
+
 setup_puppet() {
 	if [ ! -r "/etc/lsb-release" ]; then
 		echo "Cannot read version" >&2
@@ -66,6 +92,9 @@ setup_puppet() {
 			;;
 		"16.04")
 			setup_ubuntu_16
+			;;
+		"18.04")
+			setup_ubuntu_18
 			;;
 		*)
 			echo "Unknown version: ${DISTRIB_RELEASE}" >&2
