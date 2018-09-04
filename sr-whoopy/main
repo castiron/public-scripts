@@ -9,18 +9,19 @@ main() {
     local working_dir
     local srdb_script
 
-    local params db_host db_name db_user search replace db_password
+    local params db_host db_name db_user search replace sr_prompt db_password
+    sr_prompt=''
     db_password=''
-    params=(db_host db_name db_user search replace db_password)
+    params=(db_host db_name db_user search replace sr_prompt db_password)
 
     hm get_working_directory && working_dir=${hm_return}
 
     srdb_script="${working_dir}/lib/srdb/srdb.cli.php"
 
-    if [ ${main_params_count} -ne 5 ]
+    if [ ${main_params_count} -lt 5 ]
     then
         echo -e 'Usage: \n'
-        echo -e './sr-whoopy [db_host] [db_name] [db_user] [search] [replace] [OPTIONAL: db_password]  \n'
+        echo -e './sr-whoopy [db_host] [db_name] [db_user] [search] [replace] [OPTIONAL: no_prompt] [OPTIONAL: db_password]  \n'
         exit 1
     fi
 
@@ -43,7 +44,13 @@ main() {
 *********************************************
 EXECUTE_MSG
 
-    read -s -n 1 deploy_response
+    if [[ "${sr_prompt}" == "skip" ]]
+    then
+        deploy_response='y'
+    else
+        read -s -n 1 deploy_response
+    fi
+
     if [[ "${deploy_response}" == "y" || "${deploy_response}" == "Y" ]]
     then
         php ${srdb_script} -h ${db_host} -u ${db_user} -n ${db_name} -s ${search} -r ${replace} -p ${db_password}
