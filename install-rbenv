@@ -22,13 +22,26 @@ then
     exit 1
 fi
 
+if [ ! -r "/etc/lsb-release" ]; then
+    echo "Cannot read version" >&2
+    exit 1
+fi
+
+. /etc/lsb-release
+
+
 home_path="/home"
 if [ ! -z "${2}" ]
 then
     home_path=${2}
 fi
 
-apt-get -y install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev
+if [[ "${DISTRIB_RELEASE}" == "18.04" ]]
+then
+    apt-get -y install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev software-properties-common libffi-dev
+else
+    apt-get -y install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev
+fi
 
 
 su - ${1} << EOF
@@ -46,17 +59,11 @@ Ok, ok, ok it is done
 
 rbenv and ruby-build are setup for: ${1}
 
-Perhaps now you try a little:
+Now \`su  - ${1}\`
+Check the .ruby-version for the project
+Then \`rbenv install x.x.x\`
 
-rbenv install 2.2.3
-rbenv global 2.2.3
-rbenv rehash
-
-Also, don't forget:
-
-if \`su ${1}\` is your next course of action then \`source ~/.bash_profile \`
-
-GOOOOOOOOOOOOOOOOOOD
+GROOD, REAL GROOD
 
 EOF
 
