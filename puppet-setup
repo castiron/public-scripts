@@ -76,6 +76,30 @@ setup_ubuntu_18() {
 	puppet agent --test
 }
 
+setup_ubuntu_20() {
+	apt-get update
+	apt-get install -y puppet
+
+	cat >/etc/puppet/puppet.conf <<-PUPPETCONF
+	[main]
+	vardir = /var/lib/puppet
+	logdir = /var/log/puppet
+	rundir = /var/run/puppet
+	ssldir = $vardir/ssl
+
+	[agent]
+	pluginsync = true
+	report = true
+	ignoreschedules = true
+	ca_server = pancho.cichq.com
+	certname = ${HOSTNAME}
+	environment = production
+	server = pancho-puppet.cichq.com
+	PUPPETCONF
+
+	puppet agent --test
+}
+
 setup_puppet() {
 	if [ ! -r "/etc/lsb-release" ]; then
 		echo "Cannot read version" >&2
@@ -92,6 +116,9 @@ setup_puppet() {
 			setup_ubuntu_16
 			;;
 		"18.04")
+			setup_ubuntu_18
+			;;
+		"20.04")
 			setup_ubuntu_18
 			;;
 		*)
