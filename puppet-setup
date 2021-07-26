@@ -94,6 +94,9 @@ setup_puppet() {
 		"18.04")
 			setup_ubuntu_18
 			;;
+		"20.04")
+			setup_ubuntu_18
+			;;
 		*)
 			echo "Unknown version: ${DISTRIB_RELEASE}" >&2
 			exit 1
