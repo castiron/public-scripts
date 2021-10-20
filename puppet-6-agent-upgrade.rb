@@ -59,6 +59,12 @@ unless v6_installed
     run("rm /root/puppet6-release-#{release}.deb")
   end
 
+  stdout, stderr, status = Open3.capture3("apt -qq list puppet")
+  if stdout.include?("installed")
+    puts "-- Removing Puppet before installing v6"
+    run("apt-get remove puppet -y")
+  end
+  
   puts "-- Installing puppet 6 agent"
   run("apt install puppet-agent -y")
   run("source /etc/profile.d/puppet-agent.sh")
