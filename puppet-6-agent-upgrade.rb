@@ -97,25 +97,25 @@ certname        = #{hostname}
 puts "-- Updating puppet agent configuration"
 File.open("/etc/puppetlabs/puppet/puppet.conf", 'w') { |file| file.write(config) }
 
-puts "-- Running puppet agent"
-cmd = "/opt/puppetlabs/bin/puppet agent --test"
-Open3.popen3(cmd) do |stdin, stdout, stderr, thread|
-  # read each stream from a new thread
-  { :out => stdout, :err => stderr }.each do |key, stream|
-    Thread.new do
-      until (raw_line = stream.gets).nil? do
-        parsed_line = Hash[:timestamp => Time.now, :line => "#{raw_line}"]
-        # append new lines
-        data[key].push parsed_line
+# puts "-- Running puppet agent"
+# cmd = "/opt/puppetlabs/bin/puppet agent --test"
+# Open3.popen3(cmd) do |stdin, stdout, stderr, thread|
+#   # read each stream from a new thread
+#   { :out => stdout, :err => stderr }.each do |key, stream|
+#     Thread.new do
+#       until (raw_line = stream.gets).nil? do
+#         parsed_line = Hash[:timestamp => Time.now, :line => "#{raw_line}"]
+#         # append new lines
+#         data[key].push parsed_line
 
-        puts "#{key}: #{parsed_line}"
-      end
-    end
-  end
+#         puts "#{key}: #{parsed_line}"
+#       end
+#     end
+#   end
 
-  thread.join # don't exit until the external process is done
-end
+#   thread.join # don't exit until the external process is done
+# end
 
 
-puts "-- Enabling puppet"
-run "#{puppet_path} resource service puppet ensure=running"
+# puts "-- Enabling puppet"
+# run "#{puppet_path} resource service puppet ensure=running"
