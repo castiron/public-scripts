@@ -70,7 +70,6 @@ unless v6_installed
 
   puts "-- Installing puppet 6 agent"
   run("apt install puppet-agent -y")
-  run("source /etc/profile.d/puppet-agent.sh")
 
 else
   puts "-- Puppet6 already installed"
