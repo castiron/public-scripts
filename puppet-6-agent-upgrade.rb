@@ -9,9 +9,9 @@ end
 version_file = "/opt/puppetlabs/puppet/VERSION"
 trash_dir = "/root/trash"
 puppet_path = nil
-puppet_path = "/usr/bin/puppet" if File.exists?("/usr/bin/puppet") 
-puppet_path = "/opt/puppetlabs/bin/puppet" if File.exists?("/opt/puppetlabs/bin/puppet") 
-  
+puppet_path = "/usr/bin/puppet" if File.exists?("/usr/bin/puppet")
+puppet_path = "/opt/puppetlabs/bin/puppet" if File.exists?("/opt/puppetlabs/bin/puppet")
+
 version_file = "/opt/puppetlabs/puppet/VERSION"
 v6_installed =  File.exists?(version_file) && File.read(version_file).start_with?("6.")
 
@@ -67,7 +67,7 @@ unless v6_installed
     puts "-- Removing Puppet before installing v6"
     run("apt-get remove puppet -y")
   end
-  
+
   puts "-- Installing puppet 6 agent"
   run("apt install puppet-agent -y")
   run("source /etc/profile.d/puppet-agent.sh")
@@ -77,7 +77,7 @@ else
 end
 
 puppet_path = "/opt/puppetlabs/bin/puppet"
-  
+
 config =
   <<~HEREDOC
 # This file can be used to override the default puppet settings.
@@ -97,6 +97,26 @@ certname        = #{hostname}
 
 puts "-- Updating puppet agent configuration"
 File.open("/etc/puppetlabs/puppet/puppet.conf", 'w') { |file| file.write(config) }
+
+puts "-- Running puppet agent"
+cmd = "/opt/puppetlabs/bin/puppet agent --test"
+Open3.popen3(cmd) do |stdin, stdout, stderr, thread|
+  # read each stream from a new thread
+  { :out => stdout, :err => stderr }.each do |key, stream|
+    Thread.new do
+      until (raw_line = stream.gets).nil? do
+        parsed_line = Hash[:timestamp => Time.now, :line => "#{raw_line}"]
+        # append new lines
+        data[key].push parsed_line
+
+        puts "#{key}: #{parsed_line}"
+      end
+    end
+  end
+
+  thread.join # don't exit until the external process is done
+end
+
 
 puts "-- Enabling puppet"
 run "#{puppet_path} resource service puppet ensure=running"
