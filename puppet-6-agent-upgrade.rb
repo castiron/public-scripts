@@ -8,7 +8,10 @@ end
 
 version_file = "/opt/puppetlabs/puppet/VERSION"
 trash_dir = "/root/trash"
-
+puppet_path = nil
+if File.exists?("/usr/bin/puppet") puppet_path = "/usr/bin/puppet"
+if File.exists?("/opt/puppetlabs/bin/puppet") puppet_path = "/opt/puppetlabs/bin/puppet"
+  
 version_file = "/opt/puppetlabs/puppet/VERSION"
 v6_installed =  File.exists?(version_file) && File.read(version_file).start_with?("6.")
 
@@ -24,8 +27,8 @@ release = "bionic" if release_full.include? "bionic"
 raise "Release is not xenial or bionic" unless release
 puts "-- Release: #{release}"
 
-puts "-- Stopping puppet"
-run "puppet resource service puppet ensure=stopped"
+puts "-- Stopping old puppet"
+run "#{puppet_path} resource service puppet ensure=stopped"
 
 unless File.directory?(trash_dir)
   puts "  -- Making #{trash_dir}"
@@ -73,6 +76,8 @@ else
   puts "-- Puppet6 already installed"
 end
 
+puppet_path = "/opt/puppetlabs/bin/puppet"
+  
 config =
   <<~HEREDOC
 # This file can be used to override the default puppet settings.
@@ -94,4 +99,4 @@ puts "-- Updating puppet agent configuration"
 File.open("/etc/puppetlabs/puppet/puppet.conf", 'w') { |file| file.write(config) }
 
 puts "-- Enabling puppet"
-run "puppet resource service puppet ensure=running"
+run "#{puppet_path} resource service puppet ensure=running"
