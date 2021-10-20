@@ -9,8 +9,8 @@ end
 version_file = "/opt/puppetlabs/puppet/VERSION"
 trash_dir = "/root/trash"
 puppet_path = nil
-if File.exists?("/usr/bin/puppet") puppet_path = "/usr/bin/puppet"
-if File.exists?("/opt/puppetlabs/bin/puppet") puppet_path = "/opt/puppetlabs/bin/puppet"
+puppet_path = "/usr/bin/puppet" if File.exists?("/usr/bin/puppet") 
+puppet_path = "/opt/puppetlabs/bin/puppet" if File.exists?("/opt/puppetlabs/bin/puppet") 
   
 version_file = "/opt/puppetlabs/puppet/VERSION"
 v6_installed =  File.exists?(version_file) && File.read(version_file).start_with?("6.")
