@@ -1,80 +1,42 @@
 #!/usr/bin/env bash
 # Author: clark@castironcoding.com
 # Purpose: Quick script to the puppet show
-# Supported OS: Ubuntu 14.04 LTS; Ubuntu 16.04 LTS
+# Supported OS: Ubuntu 16.04 LTS; Ubuntu 18.04 LTS
 
-setup_ubuntu_14() {
-	wget https://apt.puppetlabs.com/puppetlabs-release-trusty.deb
-	dpkg -i puppetlabs-release-trusty.deb
+write_puppet_config() {
+	cat >/etc/puppetlabs/puppet/puppet.conf <<-EOF
+# This file can be used to override the default puppet settings.
+# See the following links for more details on what settings are available:
+# - https://puppet.com/docs/puppet/latest/config_important_settings.html
+# - https://puppet.com/docs/puppet/latest/config_about_settings.html
+# - https://puppet.com/docs/puppet/latest/config_file_main.html
+# - https://puppet.com/docs/puppet/latest/configuration.html
+[agent]
+pluginsync      = true
+report          = true
+ignoreschedules = true
+ca_server       = pancho-foreman.cichq.com
+server          = pancho-foreman.cichq.com
+certname        = `hostname -f`
+	EOF
+}
 
+
+setup_puppet6() {
+	wget https://apt.puppetlabs.com/puppet6-release-$1.deb
+	dpkg -i puppet6-release-$1.deb
 	apt-get update
-	apt-get install -y puppet
+	apt-get install -y puppet-agent
+	rm puppet6-release-$1.deb
 
-	cat >/etc/puppet/puppet.conf <<-PUPPETCONF
-	[agent]
-	pluginsync = true
-	report = true
-	ignoreschedules = true
-	daemon = false
-	ca_server = pancho.cichq.com
-	certname = ${HOSTNAME}
-	environment = production
-	server = pancho-puppet.cichq.com
-	rundir = /var/run/puppet
-	PUPPETCONF
+	write_puppet_config
+
+	chmod +x /etc/profile.d/puppet-agent.sh
+	source /etc/profile.d/puppet-agent.sh
 
 	puppet agent --test
 }
 
-setup_ubuntu_16() {
-	wget https://apt.puppetlabs.com/puppet-release-xenial.deb
-	dpkg -i puppet-release-xenial.deb
-	apt-get update
-	apt-get install -y puppet
-
-	cat >/etc/puppet/puppet.conf <<-PUPPETCONF
-	[main]
-	vardir = /var/lib/puppet
-	logdir = /var/log/puppet
-	rundir = /var/run/puppet
-	ssldir = $vardir/ssl
-
-	[agent]
-	pluginsync = true
-	report = true
-	ignoreschedules = true
-	ca_server = pancho.cichq.com
-	certname = ${HOSTNAME}
-	environment = production
-	server = pancho-puppet.cichq.com
-	PUPPETCONF
-
-	puppet agent --test
-}
-
-setup_ubuntu_18() {
-	apt-get update
-	apt-get install -y puppet
-
-	cat >/etc/puppet/puppet.conf <<-PUPPETCONF
-	[main]
-	vardir = /var/lib/puppet
-	logdir = /var/log/puppet
-	rundir = /var/run/puppet
-	ssldir = $vardir/ssl
-
-	[agent]
-	pluginsync = true
-	report = true
-	ignoreschedules = true
-	ca_server = pancho.cichq.com
-	certname = ${HOSTNAME}
-	environment = production
-	server = pancho-puppet.cichq.com
-	PUPPETCONF
-
-	puppet agent --test
-}
 
 setup_puppet() {
 	if [ ! -r "/etc/lsb-release" ]; then
@@ -85,17 +47,14 @@ setup_puppet() {
 	. /etc/lsb-release
 
 	case "$DISTRIB_RELEASE" in
-		"14.04")
-			setup_ubuntu_14
-			;;
 		"16.04")
-			setup_ubuntu_16
+			setup_puppet6 "xenial"
 			;;
 		"18.04")
-			setup_ubuntu_18
+			setup_puppet6 "bionic"
 			;;
 		"20.04")
-			setup_ubuntu_18
+			setup_puppet6 "focal"
 			;;
 		*)
 			echo "Unknown version: ${DISTRIB_RELEASE}" >&2
